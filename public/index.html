@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>AI Usage</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/theme.js"></script>
+  <script src="/vendor/chart.umd.min.js" defer></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>AI Usage</h1>
+      <p class="muted" id="updated">Loading…</p>
+    </div>
+    <div class="controls">
+      <select id="g-agent" aria-label="Filter by agent">
+        <option value="all">All agents</option>
+      </select>
+      <select id="g-model" aria-label="Filter by model">
+        <option value="all">All models</option>
+      </select>
+      <select id="pricing" aria-label="Price list used for cost"
+        title="Which price list is used to estimate cost">
+        <option value="1">Prices: built-in list</option>
+        <option value="0">Prices: latest online</option>
+      </select>
+      <div class="segmented" role="group" aria-label="Theme">
+        <button type="button" data-theme-choice="auto"
+          aria-pressed="true">Auto</button>
+        <button type="button" data-theme-choice="light"
+          aria-pressed="false">Light</button>
+        <button type="button" data-theme-choice="dark"
+          aria-pressed="false">Dark</button>
+      </div>
+      <button type="button" id="refresh" class="btn primary">
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="banner" id="banner" hidden></div>
+
+    <section class="card" id="overview">
+      <header class="card-head row">
+        <div>
+          <h2>Usage overview</h2>
+          <p class="muted" id="ov-range"></p>
+        </div>
+        <div class="filters">
+          <div class="segmented" role="group" aria-label="Period">
+            <button type="button" data-period="today"
+              aria-pressed="true">Today</button>
+            <button type="button" data-period="week"
+              aria-pressed="false">This week</button>
+            <button type="button" data-period="month"
+              aria-pressed="false">This month</button>
+            <button type="button" data-period="day"
+              aria-pressed="false">Day</button>
+            <button type="button" data-period="all"
+              aria-pressed="false">All time</button>
+          </div>
+          <input type="date" id="ov-day" aria-label="Pick a day">
+        </div>
+      </header>
+      <div class="kpis">
+        <article class="tile kpi" id="kpi-total">
+          <h2>Total tokens</h2>
+          <p class="value skeleton"></p>
+          <p class="sub"></p>
+        </article>
+        <article class="tile kpi" id="kpi-output">
+          <h2>Output tokens</h2>
+          <p class="value skeleton"></p>
+          <p class="sub"></p>
+        </article>
+        <article class="tile kpi" id="kpi-cache">
+          <h2>Cache read share</h2>
+          <p class="value skeleton"></p>
+          <p class="sub"></p>
+        </article>
+        <article class="tile kpi" id="kpi-cost">
+          <h2>Estimated cost</h2>
+          <p class="value skeleton"></p>
+          <p class="sub">API-equivalent estimate, not billed</p>
+        </article>
+      </div>
+      <div class="breakdown" id="ov-breakdown"></div>
+      <details class="explain">
+        <summary>How is the estimated cost calculated?</summary>
+        <p>For each model, ccusage multiplies each token type by that
+          model's price per token and adds them up:</p>
+        <p class="formula">cost = input × input price + output × output
+          price + cache write × cache-write price + cache read ×
+          cache-read price</p>
+        <p>Prices come from the public LiteLLM model price list (the
+          same list per-token API prices are published in).</p>
+        <ul>
+          <li><b>Prices: built-in list</b> – a copy shipped inside
+            ccusage 20.0.26. Works offline, but models released after
+            that version show as <span class="tag">Unpriced</span>.</li>
+          <li><b>Prices: latest online</b> – ccusage downloads the
+            current list on each run, so new models get a price.</li>
+        </ul>
+        <p>This is what the same usage would cost on the pay-as-you-go
+          API. On a Pro/Max subscription you pay a flat fee, so it is
+          not your bill.</p>
+      </details>
+      <p class="error" hidden></p>
+    </section>
+
+    <section class="grid one-one">
+      <article class="card" id="block-card">
+        <header class="card-head">
+          <h2>Current 5-hour block</h2>
+          <p class="muted">Claude Code · times in Europe/Stockholm</p>
+        </header>
+        <div class="mini skeleton" id="block-body"></div>
+        <p class="error" hidden></p>
+      </article>
+      <article class="card" id="week-card">
+        <header class="card-head">
+          <h2>This week</h2>
+          <p class="muted">Mon–Sun · compared with last week so far</p>
+        </header>
+        <div class="mini skeleton" id="week-body"></div>
+        <p class="error" hidden></p>
+      </article>
+    </section>
+
+    <section class="grid two-one">
+      <article class="card" id="daily-card">
+        <header class="card-head">
+          <h2>Daily tokens by type</h2>
+          <p class="muted">Last 30 days · click legend to hide a type</p>
+        </header>
+        <div class="chart-box skeleton"><canvas id="daily-chart"
+          role="img" aria-label="Daily tokens by type"></canvas></div>
+        <p class="error" hidden></p>
+      </article>
+      <article class="card" id="model-card">
+        <header class="card-head">
+          <h2>Tokens per model</h2>
+          <p class="muted" id="model-sub">All time</p>
+        </header>
+        <div class="chart-box skeleton"><canvas id="model-chart"
+          role="img" aria-label="Tokens per model"></canvas></div>
+        <p class="error" hidden></p>
+      </article>
+    </section>
+
+    <section class="grid one-one">
+      <article class="card" id="monthly-card">
+        <header class="card-head">
+          <h2>Monthly trend</h2>
+          <p class="muted">Total tokens per month</p>
+        </header>
+        <div class="chart-box skeleton"><canvas id="monthly-chart"
+          role="img" aria-label="Monthly total tokens"></canvas></div>
+        <p class="error" hidden></p>
+      </article>
+      <article class="card" id="peak-card">
+        <header class="card-head">
+          <h2>Peak vs off-peak</h2>
+          <p class="muted">Claude Code · tokens by the hour used · peak =
+            Mon–Fri 05:00–11:00 Pacific time (DST-aware)</p>
+        </header>
+        <div class="peak-body skeleton" id="peak-body"></div>
+        <p class="note muted">Anthropic counted peak-hour usage faster
+          against 5-hour limits from March 2026. Reports say Claude
+          Code on Pro/Max is exempt since 6 May 2026 – check
+          Anthropic's help center for your plan.</p>
+        <p class="error" hidden></p>
+      </article>
+    </section>
+
+    <section class="card" id="table-card">
+      <header class="card-head row">
+        <div>
+          <h2>Daily detail by model</h2>
+          <p class="muted" id="table-count"></p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <span>From</span><input type="date" id="f-from">
+          </label>
+          <label class="field">
+            <span>To</span><input type="date" id="f-to">
+          </label>
+          <button type="button" class="btn" id="f-reset">Reset</button>
+          <button type="button" class="btn" id="csv">Export CSV</button>
+        </div>
+      </header>
+      <div class="table-wrap skeleton" id="table-wrap">
+        <table id="detail">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <p class="error" hidden></p>
+    </section>
+
+    <section class="card" id="session-card">
+      <header class="card-head">
+        <h2>Top sessions</h2>
+        <p class="muted">Largest 10 by total tokens</p>
+      </header>
+      <div class="table-wrap skeleton">
+        <table id="sessions">
+          <thead><tr>
+            <th>Session</th><th>Agent / project</th><th>Last day</th>
+            <th class="num">Tokens</th><th class="num">Cost</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="error" hidden></p>
+    </section>
+  </main>
+
+  <footer class="foot muted">
+    Data from ccusage (local logs). Dates in Europe/Stockholm.
+    Costs are API-equivalent estimates, not your bill.
+  </footer>
+</body>
+</html>
