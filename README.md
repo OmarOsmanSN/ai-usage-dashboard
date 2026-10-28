@@ -6,6 +6,9 @@ current Claude 5-hour block – in a local dashboard or straight in the
 terminal. Filter by agent or model. Reads the logs these tools already
 keep on your machine (e.g. `~/.claude/projects`). Nothing is uploaded.
 
+![AI Usage dashboard: usage overview, current 5-hour block, this week,
+daily tokens by type and tokens per model](docs/dashboard.png)
+
 ## Quick start
 
 You need **Node.js 20+** and a machine where you use Claude Code.
