@@ -183,3 +183,7 @@ only one day old when this project was set up).
   current prices.
 - Block costs come from ccusage `costUSD`; a block that used an
   unpriced model is flagged "+ unpriced".
+
+## License
+
+[MIT](LICENSE) © 2026 Omar Osman

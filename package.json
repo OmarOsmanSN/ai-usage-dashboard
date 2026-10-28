@@ -2,6 +2,7 @@
   "name": "ai-usage-dashboard",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Local dashboard for AI coding agent token usage via ccusage",
   "type": "module",
   "main": "server.js",
