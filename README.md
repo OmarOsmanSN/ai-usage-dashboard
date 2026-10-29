@@ -55,8 +55,12 @@ Different port: `PORT=5000 npm start` (macOS/Linux) or
 - **Usage overview:** pick *Today*, *This week* (Mon–Sun), *This month*
   a specific *Day* or *All time*. Shows total, output, cache-read share,
   estimated cost and the exact count per token type.
-- **Current 5-hour block:** active/idle, time left, tokens, cost, burn
-  rate, projection.
+- **5-hour block (local estimate):** active/idle, time left, tokens,
+  cost, burn rate, projection. This is ccusage's estimate, not your
+  real limit: it rounds the start down to the full hour, only sees
+  Claude Code logs on this computer (not claude.ai or other devices),
+  and does not know your plan's limits. For the real reset time and
+  % used, see claude.ai → Settings → Usage or `/usage` in Claude Code.
 - **This week:** tokens per day (Mon–Sun) and change vs last week to
   the same weekday.
 - **Charts:** daily tokens by type (30 days), tokens per model, monthly

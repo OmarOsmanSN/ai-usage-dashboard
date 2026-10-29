@@ -495,3 +495,11 @@ tbody tr:hover { background: var(--surface-2); }
   padding: 8px 10px;
 }
 .note { font-size: 12px; margin-top: 10px; }
+
+.note code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+  background: var(--surface-2);
+  padding: 0 4px;
+  border-radius: 4px;
+}

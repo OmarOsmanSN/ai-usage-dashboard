@@ -116,10 +116,17 @@
     <section class="grid one-one">
       <article class="card" id="block-card">
         <header class="card-head">
-          <h2>Current 5-hour block</h2>
-          <p class="muted">Claude Code · times in Europe/Stockholm</p>
+          <h2>5-hour block (local estimate)</h2>
+          <p class="muted">Claude Code on this computer · times in
+            Europe/Stockholm</p>
         </header>
         <div class="mini skeleton" id="block-body"></div>
+        <p class="note muted">Not your real limit. ccusage rounds the
+          start down to the full hour and only sees this computer's
+          Claude Code logs, so usage from claude.ai or other devices is
+          missing, and it does not know your plan's limits. For the real
+          reset time and % used, see claude.ai → Settings → Usage or run
+          <code>/usage</code> in Claude Code.</p>
         <p class="error" hidden></p>
       </article>
       <article class="card" id="week-card">

@@ -96,7 +96,8 @@ async function main() {
   printTable(table);
 
   const b = activeBlock(blocks.blocks);
-  console.log('\n5-hour block (Claude Code):');
+  console.log('\n5-hour block (local estimate, this computer only; ' +
+    'real limit: claude.ai > Settings > Usage):');
   if (!b) {
     console.log('  Idle (no active block)');
   } else {
